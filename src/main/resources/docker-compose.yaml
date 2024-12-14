@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: "maispratiacademia"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "Postgres2024!"
+    ports:
+      - "5432:5432"
