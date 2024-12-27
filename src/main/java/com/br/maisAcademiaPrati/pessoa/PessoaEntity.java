@@ -34,7 +34,7 @@ public class PessoaEntity {
 
     private String bairro;
 
-    private int cep;
+    private String cep;
 
     private String complemento;
 }

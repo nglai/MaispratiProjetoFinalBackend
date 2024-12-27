@@ -14,7 +14,7 @@ public record AlunoDTO(
         Role role,
         String rua,
         String bairro,
-        int cep,
+        String cep,
         String complemento,
         String profissao,
         String enfermidades
