@@ -1,5 +1,7 @@
 package com.br.maisAcademiaPrati.aluno;
 
+import com.br.maisAcademiaPrati.enums.Plano;
+import com.br.maisAcademiaPrati.enums.Role;
 import com.br.maisAcademiaPrati.pessoa.PessoaEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -23,4 +26,17 @@ public class AlunoEntity extends PessoaEntity {
     private String profissao;
 
     private String enfermidades;
+
+    @Enumerated(EnumType.STRING)
+    private Plano plano;
+
+    private double altura;
+
+    private boolean ativo;
+
+    private Date data_pagamento;
+
+    private Date data_vencimento;
+
+    private String ultimo_exercicio;
 }

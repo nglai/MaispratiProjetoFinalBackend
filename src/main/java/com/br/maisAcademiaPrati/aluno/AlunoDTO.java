@@ -17,5 +17,11 @@ public record AlunoDTO(
         String cep,
         String complemento,
         String profissao,
-        String enfermidades
+        String enfermidades,
+        String plano,
+        double altura,
+        boolean ativo,
+        Date data_pagamento,
+        Date data_vencimento,
+        String ultimo_exercicio
 ){}
