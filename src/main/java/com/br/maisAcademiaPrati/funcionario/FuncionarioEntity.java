@@ -1,5 +1,6 @@
 package com.br.maisAcademiaPrati.funcionario;
 
+import com.br.maisAcademiaPrati.endereco.EnderecoEntity;
 import com.br.maisAcademiaPrati.pessoa.PessoaEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -20,7 +21,7 @@ import java.math.BigDecimal;
 public class FuncionarioEntity extends PessoaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID funcionario_id;
+    private UUID id_funcionario;
 
     private boolean ativo;
 
@@ -33,4 +34,8 @@ public class FuncionarioEntity extends PessoaEntity {
     private LocalTime hora_saida;
 
     private LocalTime hora_extra;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "fk_id_endereco")
+    private EnderecoEntity endereco;
 }

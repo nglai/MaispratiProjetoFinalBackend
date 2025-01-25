@@ -1,4 +1,4 @@
-package com.br.maisAcademiaPrati.aluno;
+package com.br.maisAcademiaPrati.exercicio;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface AlunoRepository extends JpaRepository<AlunoEntity, UUID> {
+public interface ExercicioRepository extends JpaRepository<ExercicioEntity, UUID> {
 }
