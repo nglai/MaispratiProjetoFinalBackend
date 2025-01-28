@@ -15,6 +15,7 @@ public class PessoaEntity {
 
     private String nome;
 
+    @Column(unique = true)
     private String email;
 
     private String documento;
