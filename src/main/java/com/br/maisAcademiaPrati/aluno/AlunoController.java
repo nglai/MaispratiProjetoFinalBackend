@@ -1,6 +1,7 @@
 package com.br.maisAcademiaPrati.aluno;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +18,12 @@ public class AlunoController {
     AlunoService alunoService;
 
     @PostMapping
-    public ResponseEntity<AlunoEntity> criaAluno (@RequestBody AlunoDTO data) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.alunoService.criarAluno(data));
+    public ResponseEntity<?> criaAluno (@RequestBody AlunoDTO data) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(this.alunoService.criarAluno(data));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @GetMapping

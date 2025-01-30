@@ -17,8 +17,12 @@ public class FuncionarioController {
     FuncionarioService funcionarioService;
 
     @PostMapping
-    public ResponseEntity<FuncionarioEntity> criaFuncionario(@RequestBody FuncionarioDTO data) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.funcionarioService.criarFuncionario(data));
+    public ResponseEntity<?> criaFuncionario(@RequestBody FuncionarioDTO data) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(this.funcionarioService.criarFuncionario(data));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @GetMapping
