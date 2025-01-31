@@ -1,13 +1,11 @@
 package com.br.maisAcademiaPrati.aluno;
 
-import com.br.maisAcademiaPrati.endereco.EnderecoDTO;
 import com.br.maisAcademiaPrati.endereco.EnderecoEntity;
 import com.br.maisAcademiaPrati.endereco.EnderecoRepository;
 import com.br.maisAcademiaPrati.enums.Plano;
-import com.br.maisAcademiaPrati.funcionario.FuncionarioEntity;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +19,8 @@ public class AlunoService {
     private AlunoRepository alunoRepository;
     @Autowired
     private EnderecoRepository enderecoRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public AlunoEntity criarAluno (AlunoDTO alunoDTO) {
         var endereco = new EnderecoEntity();
@@ -32,6 +32,7 @@ public class AlunoService {
 
         AlunoEntity aluno = new AlunoEntity();
         BeanUtils.copyProperties(alunoDTO, aluno);
+        aluno.setSenha(passwordEncoder.encode(alunoDTO.senha()));
         aluno.setPlano(Plano.fromString(alunoDTO.plano()));
         aluno.setEndereco(endereco);
         return alunoRepository.save(aluno);
@@ -43,6 +44,10 @@ public class AlunoService {
 
     public Optional<AlunoEntity> buscaAlunoPorId(UUID id) {
         return alunoRepository.findById(id);
+    }
+
+    public AlunoEntity buscaAlunoPorEmail(String email) {
+        return alunoRepository.findByEmail(email).orElse(null);
     }
 
     public AlunoEntity atualizaAlunoPorId(UUID id, AlunoDTO alunoDTO) {
