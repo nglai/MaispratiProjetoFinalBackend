@@ -29,8 +29,8 @@ public class CustomUserDetailsService implements UserDetailsService {
             return new CustomUserDetails(
                     aluno.get().getEmail(),
                     aluno.get().getSenha(),
-                    List.of(new SimpleGrantedAuthority("ROLE_USER"))
-            ); // Lista de permissões/roles (neste caso, apenas "ROLE_USER").
+                    List.of(new SimpleGrantedAuthority("ROLE_ALUNO"))
+            ); // Lista de permissões/roles (neste caso, apenas "ROLE_ALUNO").
         }
 
         Optional<FuncionarioEntity> funcionario = funcionarioRepository.findByEmail(username);
@@ -39,7 +39,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                     funcionario.get().getEmail(),
                     funcionario.get().getSenha(),
                     List.of(new SimpleGrantedAuthority("ROLE_FUNCIONARIO"))
-                    ); // Lista de permissões/roles (neste caso, apenas "ROLE_USER").
+                    ); // Lista de permissões/roles (neste caso, apenas "ROLE_FUNCIONARIO").
         }
 
         return null;

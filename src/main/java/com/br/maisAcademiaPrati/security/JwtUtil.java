@@ -31,16 +31,22 @@ public class JwtUtil {
         return token;
     }
 
-//    public String generateRefreshToken(String username) {
-//        return generateToken(username);
-//    }
+    public String generateRefreshToken(String username) {
+        return generateToken(username);
+    }
 
     public String getEmailFromToken(String token) {
-        return Jwts.parser()
-                .setSigningKey(secret)
-                .parseClaimsJwt(token)
-                .getBody()
-                .getSubject();
+        try {
+            if (!token.matches("^[A-Za-z0-9-_\\.]+\\.[A-Za-z0-9-_\\.]+\\.[A-Za-z0-9-_\\.]+$")) {
+                System.out.println("Token JWT malformatado: " + token);
+                throw new IllegalArgumentException("Token JWT malformatado.");
+            }
+
+            return extractClaim(token, Claims::getSubject); // Extrai o "subject" (nome do usuário) do token.
+        } catch (Exception e) {
+            System.out.println("Erro ao extrair o username do token: " + e.getMessage());
+            throw e; // Propaga a exceção após registrar o erro.
+        }
     }
 
     public String extractEmail(String token) {

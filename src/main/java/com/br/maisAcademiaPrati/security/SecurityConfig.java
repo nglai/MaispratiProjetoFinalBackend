@@ -45,7 +45,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll() // Permite acesso às rotas iniciadas por "/auth/" sem autenticação.
                         .requestMatchers("/aluno/**").permitAll()
-                        .requestMatchers("/funcionario/**").permitAll()
+//                        .requestMatchers("/funcionario/**").permitAll()
+                        .requestMatchers("/funcionario/**").hasAuthority("ROLE_FUNCIONARIO")
 //                        .requestMatchers("/api/protected").hasAuthority("ROLE_USER") // Restringe acesso às rotas "/api/protected" para usuários com a role "ROLE_USER".
                         .anyRequest().authenticated() // Exige autenticação para todas as outras requisições.
                 )

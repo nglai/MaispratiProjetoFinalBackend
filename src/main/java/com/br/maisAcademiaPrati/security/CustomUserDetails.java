@@ -31,12 +31,12 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return "";
+        return senha;
     }
 
     @Override
     public String getUsername() {
-        return "";
+        return email;
     }
 
     @Override
