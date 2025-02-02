@@ -15,6 +15,7 @@ public class PessoaEntity {
 
     private String nome;
 
+    @Column(unique = true)
     private String email;
 
     private String documento;
@@ -30,11 +31,6 @@ public class PessoaEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private String rua ;
-
-    private String bairro;
-
-    private String cep;
-
-    private String complemento;
+    @Lob
+    private byte[] imagem_perfil;
 }

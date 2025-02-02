@@ -1,5 +1,6 @@
 package com.br.maisAcademiaPrati.funcionario;
 
+import com.br.maisAcademiaPrati.endereco.EnderecoDTO;
 import com.br.maisAcademiaPrati.enums.Role;
 
 import java.util.Date;
@@ -16,15 +17,12 @@ public record FuncionarioDTO(
         String senha,
         Date data_cadastro,
         Role role,
-        String rua,
-        String bairro,
-        String cep,
-        String complemento,
+        byte[] imagem_perfil,
         boolean ativo,
         String carteira_trabalho,
         BigDecimal salario,
         LocalTime hora_entrada,
         LocalTime hora_saida,
-        LocalTime hora_extra
-
+        LocalTime hora_extra,
+        EnderecoDTO endereco
 ){}
