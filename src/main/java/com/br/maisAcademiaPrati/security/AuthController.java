@@ -4,10 +4,13 @@ import com.br.maisAcademiaPrati.aluno.AlunoRepository;
 import com.br.maisAcademiaPrati.funcionario.FuncionarioRepository;
 import com.br.maisAcademiaPrati.pessoa.PessoaEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,34 +21,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     @Autowired
-    JwtUtil jwtUtil;
+    private JwtUtil jwtUtil;
     @Autowired
-    AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
     @Autowired
-    AlunoRepository alunoRepository;
+    private AlunoRepository alunoRepository;
     @Autowired
-    FuncionarioRepository funcionarioRepository;
-
-//    @PostMapping("/login")
-//    public ResponseEntity<?> login(@RequestBody PessoaEntity pessoa){
-//        try {
-//            Optional<AlunoEntity> encontraAluno = alunoRepository.findByEmail(pessoa.getEmail());
-//            if(encontraAluno.isPresent() && encontraAluno.get().getSenha().equals(pessoa.getSenha())){
-//                String token = jwtUtil.generateToken(pessoa.getEmail());
-//                return ResponseEntity.ok().body("AcessToken: " + token);
-//            }
-//
-//            Optional<FuncionarioEntity> encontraFuncionario = funcionarioRepository.findByEmail(pessoa.getEmail());
-//            if (encontraFuncionario.isPresent() && encontraFuncionario.get().getSenha().equals(pessoa.getSenha())) {
-//                String token = jwtUtil.generateToken(pessoa.getEmail());
-//                return ResponseEntity.ok().body("AcessToken: " + token);
-//            }
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciais Inválidas");
-//        } catch (Exception e) {
-//            e.printStackTrace(); // Ou use um logger mais robusto
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro interno do servidor");
-//        }
-//    }
+    private FuncionarioRepository funcionarioRepository;
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     @PostMapping("/login")
     public String login(@RequestBody PessoaEntity pessoa) {
@@ -75,6 +59,24 @@ public class AuthController {
 
         } catch (AuthenticationException e) {
             throw new AuthenticationException("Usuário ou senha Inválidos") {};
+        }
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<String> refreshToken(@RequestBody RefreshTokenDTO refreshToken) {
+        try {
+            String userEmail = jwtUtil.getEmailFromToken(refreshToken.getRefreshToken());
+
+            UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+
+            if(jwtUtil.isTokenValid(refreshToken.getRefreshToken(), userDetails)) {
+                String newAccessToken = jwtUtil.generateToken(userEmail);
+                return ResponseEntity.ok(newAccessToken);
+            } else {
+                return ResponseEntity.status(401).body("Refresh Token Inválido!");
+            }
+        } catch(Exception error){
+            return ResponseEntity.status(401).body("Erro ao processar o Refresh Token!");
         }
     }
 }

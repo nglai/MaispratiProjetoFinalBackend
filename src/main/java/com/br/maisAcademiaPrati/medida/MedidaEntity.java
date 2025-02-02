@@ -21,8 +21,8 @@ public class MedidaEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id_medida;
 
-    @ManyToOne
-    @JoinColumn(name = "fk_id_aluno")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_id_aluno", nullable = false)
     private AlunoEntity aluno;
 
     private Date data_medida;
