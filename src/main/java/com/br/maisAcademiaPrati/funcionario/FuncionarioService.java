@@ -40,6 +40,10 @@ public class FuncionarioService {
         return funcionarioRepository.findAll();
     }
 
+    public FuncionarioEntity buscaFuncionarioPorEmail(String email) {
+        return funcionarioRepository.findByEmail(email).orElse(null);
+    }
+
     public Optional<FuncionarioEntity> buscaFuncionarioPorId(UUID id) {
         return funcionarioRepository.findById(id);
     }
