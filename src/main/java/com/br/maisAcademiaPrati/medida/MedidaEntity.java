@@ -28,6 +28,7 @@ public class MedidaEntity {
     private Date data_medida;
     private Double peso;
     private Double biceps;
+    private Double triceps;
     private Double abdomen;
     private Double gluteo;
     private Double coxa;

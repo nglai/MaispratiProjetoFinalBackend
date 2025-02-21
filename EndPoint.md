@@ -1,42 +1,82 @@
-## End points para verificar se rodam corretamente...
+## Aluno
+Criar Aluno:
+POST http://localhost:8080/aluno
 
-## Alunos:
-GET: http://localhost:8080/alunos
-GET: http://localhost:8080/alunos/{id}
-POST: http://localhost:8080/alunos
-PUT: http://localhost:8080/alunos/{id}
-DELETE: http://localhost:8080/alunos/{id}
+Listar Todos os Alunos:
+GET http://localhost:8080/aluno
 
-## Ficha:
-GET: http://localhost:8080/fichas
-GET por ID: http://localhost:8080/fichas/{id}
-POST: http://localhost:8080/fichas
-## Exemlo de post
-{
-"descricao": "Ficha de treino A",
-"dataCriacao": "2025-01-01",
-"aluno": { "id": 1 }
-}
+Buscar Aluno por ID:
+GET http://localhost:8080/aluno/{id}
+(substitua {id} pelo UUID do aluno)
 
-PUT: http://localhost:8080/fichas/{id}
-DELETE: http://localhost:8080/fichas/{id}
+Atualizar Aluno por ID:
+PUT http://localhost:8080/aluno/{id}
 
-## Exercicio:
-GET: http://localhost:8080/exercicios
-GET por ID: http://localhost:8080/exercicios/{id}
-POST: http://localhost:8080/exercicios
-{
-"nome": "Agachamento",
-"descricao": "Exercício para pernas",
-"ficha": { "id": 1 }
-}
+## Endereço
 
-PUT: http://localhost:8080/exercicios/{id}
-DELETE: http://localhost:8080/exercicios/{id}
+Listar Todos os Endereços:
+GET http://localhost:8080/api/enderecos
 
-## Avaliacao:
-GET: http://localhost:8080/avaliacoes
-GET por ID: http://localhost:8080/avaliacoes/{id}
-POST: http://localhost:8080/avaliacoes
-PUT: http://localhost:8080/avaliacoes/{id}
-DELETE: http://localhost:8080/avaliacoes/{id}
+Buscar Endereço por ID:
+GET http://localhost:8080/api/enderecos/{id}
+(substitua {id} pelo UUID do endereço)
+
+Criar Endereço:
+POST http://localhost:8080/api/enderecos
+
+Atualizar Endereço por ID:
+PUT http://localhost:8080/api/enderecos/{id}
+
+Deletar Endereço por ID:
+DELETE http://localhost:8080/api/enderecos/{id}
+
+## Funcionario
+
+Criar Funcionário:
+POST http://localhost:8080/funcionario
+
+Listar Todos os Funcionários:
+GET http://localhost:8080/funcionario
+
+Buscar Funcionário por ID:
+GET http://localhost:8080/funcionario/{id}
+(substitua {id} pelo UUID do funcionário)
+
+Atualizar Funcionário por ID:
+PUT http://localhost:8080/funcionario/{id}
+
+## Medida
+
+Listar Todas as Medidas:
+GET http://localhost:8080/medidas
+
+Buscar Medida por ID:
+GET http://localhost:8080/medidas/{id}
+(substitua {id} pelo identificador da medida)
+
+Criar Medida:
+POST http://localhost:8080/medidas
+
+Atualizar Medida por ID:
+PUT http://localhost:8080/medidas/{id}
+
+Deletar Medida por ID:
+DELETE http://localhost:8080/medidas/{id}
+
+## AlunoExercicio
+
+Listar Todos os Registros de AlunoExercicio:
+GET http://localhost:8080/api/aluno-exercicios
+
+Buscar AlunoExercicio pela Chave Composta:
+GET http://localhost:8080/api/aluno-exercicios/{idAluno}/{idExercicio}
+(substitua {idAluno} e {idExercicio} pelos respectivos UUIDs)
+
+Criar AlunoExercicio:
+POST http://localhost:8080/api/aluno-exercicios
+
+Atualizar AlunoExercicio pela Chave Composta:
+PUT http://localhost:8080/api/aluno-exercicios/{idAluno}/{idExercicio}
+
+Deletar AlunoExercicio pela Chave Composta:
+DELETE http://localhost:8080/api/aluno-exercicios/{idAluno}/{idExercicio}
