@@ -49,8 +49,8 @@ public class AlunoEntity extends PessoaEntity {
     @JoinColumn(name = "fk_id_endereco")
     private EnderecoEntity endereco;
 
-    @Transient
-    @OneToMany(mappedBy = "aluno")
+
+    @OneToMany(mappedBy = "aluno", fetch = FetchType.LAZY)
     private List<MedidaEntity> medidas;
 
     @Transient

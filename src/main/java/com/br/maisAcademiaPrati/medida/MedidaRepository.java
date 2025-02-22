@@ -7,5 +7,4 @@ import java.util.UUID;
 
 @Repository
 public interface MedidaRepository extends JpaRepository<MedidaEntity, UUID> {
-    void deleteById(Long id);
 }

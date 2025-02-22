@@ -17,8 +17,10 @@ import java.util.UUID;
 @Entity
 @Table(name = "medida")
 public class MedidaEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id_medida") // ou "cod_medida", conforme o diagrama
     private UUID id_medida;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -28,7 +30,7 @@ public class MedidaEntity {
     private Date data_medida;
     private Double peso;
     private Double biceps;
-    private Double triceps;
+    private Double triceps;    //  Faltou esse campo
     private Double abdomen;
     private Double gluteo;
     private Double coxa;

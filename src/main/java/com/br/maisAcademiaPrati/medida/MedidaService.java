@@ -1,11 +1,11 @@
 package com.br.maisAcademiaPrati.medida;
 
-import com.br.maisAcademiaPrati.medida.MedidaEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class MedidaService {
@@ -16,40 +16,29 @@ public class MedidaService {
         this.medidaRepository = medidaRepository;
     }
 
-    /**
-     * Lista todas as medidas.
-     */
     public List<MedidaEntity> listarTodas() {
         return medidaRepository.findAll();
     }
 
-    /**
-     * Busca uma medida pelo ID (Long).
-     */
-    public Optional<MedidaEntity> buscarPorId(Long id) {
+    public Optional<MedidaEntity> buscarPorId(UUID id) {
         return medidaRepository.findById(id);
     }
 
-    /**
-     * Salva uma nova medida no banco.
-     */
     @Transactional
     public MedidaEntity salvar(MedidaEntity medida) {
         return medidaRepository.save(medida);
     }
 
-    /**
-     * Atualiza uma medida existente (caso exista).
-     */
     @Transactional
-    public MedidaEntity atualizar(Long id, MedidaEntity medidaAtualizada) {
+    public MedidaEntity atualizar(UUID id, MedidaEntity medidaAtualizada) {
         return medidaRepository.findById(id)
                 .map(m -> {
                     m.setData_medida(medidaAtualizada.getData_medida());
                     m.setPeso(medidaAtualizada.getPeso());
                     m.setBiceps(medidaAtualizada.getBiceps());
-                    m.setTriceps(medidaAtualizada.getTriceps());
+                    m.setTriceps(medidaAtualizada.getTriceps()); // Se existir
                     m.setAbdomen(medidaAtualizada.getAbdomen());
+                    m.setGluteo(medidaAtualizada.getGluteo());
                     m.setCoxa(medidaAtualizada.getCoxa());
                     m.setPanturrilha(medidaAtualizada.getPanturrilha());
                     return medidaRepository.save(m);
@@ -57,11 +46,8 @@ public class MedidaService {
                 .orElseThrow(() -> new RuntimeException("Medida não encontrada para o id: " + id));
     }
 
-    /**
-     * Deleta uma medida pelo ID (Long).
-     */
     @Transactional
-    public void deletar(Long id) {
+    public void deletar(UUID id) {
         medidaRepository.deleteById(id);
     }
 }

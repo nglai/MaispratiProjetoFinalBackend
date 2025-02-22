@@ -4,9 +4,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/medidas") // Pode ser ajustado para "/api/medidas" se necessário
+@RequestMapping("/medidas")
 public class MedidaController {
 
     private final MedidaService medidaService;
@@ -21,7 +22,7 @@ public class MedidaController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MedidaEntity> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<MedidaEntity> buscarPorId(@PathVariable UUID id) {
         return medidaService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -33,7 +34,7 @@ public class MedidaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MedidaEntity> atualizar(@PathVariable Long id,
+    public ResponseEntity<MedidaEntity> atualizar(@PathVariable UUID id,
                                                   @RequestBody MedidaEntity medidaAtualizada) {
         try {
             MedidaEntity atualizado = medidaService.atualizar(id, medidaAtualizada);
@@ -44,7 +45,7 @@ public class MedidaController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+    public ResponseEntity<Void> deletar(@PathVariable UUID id) {
         medidaService.deletar(id);
         return ResponseEntity.noContent().build();
     }
