@@ -1,21 +1,9 @@
 package com.br.maisAcademiaPrati.refreshToken;
 
-import com.br.maisAcademiaPrati.aluno.AlunoEntity;
-import com.br.maisAcademiaPrati.endereco.EnderecoEntity;
-import com.br.maisAcademiaPrati.funcionario.FuncionarioEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.time.Instant;
 import java.util.UUID;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
 @Entity
 @Table(name = "refresh_token")
 public class RefreshToken {
@@ -38,12 +26,12 @@ public class RefreshToken {
 
     public RefreshToken() {}
 
-    public UUID getId() {
-        return id;
+    public UUID getId_refresh_token() {
+        return id_refresh_token;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public void setId_refresh_token(UUID id_refresh_token) {
+        this.id_refresh_token = id_refresh_token;
     }
 
     public String getToken() {
@@ -68,6 +56,5 @@ public class RefreshToken {
 
     public void setExpiryDate(Instant expiryDate) {
         this.expiryDate = expiryDate;
-
     }
 }
