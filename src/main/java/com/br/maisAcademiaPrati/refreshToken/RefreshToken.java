@@ -26,33 +26,48 @@ public class RefreshToken {
     @Column(nullable = false, unique = true)
     private String token;
 
+    // Utilizamos o username para associar o refresh token ao usuário.
+    @Column(nullable = false)
+    private String username;
+
+    // Data de expiração do token
     @Column(nullable = false)
     private Instant expiryDate;
 
-    @ManyToOne
-    @JoinColumn(name = "fk_id_aluno")
-    private AlunoEntity aluno;
+    // Construtores, getters e setters
 
-    @ManyToOne
-    @JoinColumn(name = "fk_id_funcionario")
-    private FuncionarioEntity funcionario;
+    public RefreshToken() {}
 
-    public RefreshToken(UUID id_refresh_token, Instant expiryDate, FuncionarioEntity funcionario) {
-        this.id_refresh_token = id_refresh_token;
-        this.expiryDate = expiryDate;
-        this.funcionario = funcionario;
+    public UUID getId() {
+        return id;
     }
 
-    public RefreshToken(UUID id_refresh_token, Instant expiryDate, AlunoEntity aluno) {
-        this.id_refresh_token = id_refresh_token;
-        this.expiryDate = expiryDate;
-        this.aluno = aluno;
+    public void setId(UUID id) {
+        this.id = id;
     }
 
-    public RefreshToken(UUID id_refresh_token, String token, Instant expiryDate, AlunoEntity aluno) {
-        this.id_refresh_token = id_refresh_token;
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public Instant getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(Instant expiryDate) {
         this.expiryDate = expiryDate;
-        this.aluno = aluno;
+
     }
 }

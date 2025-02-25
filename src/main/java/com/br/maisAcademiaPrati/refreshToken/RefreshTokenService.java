@@ -1,5 +1,10 @@
 package com.br.maisAcademiaPrati.refreshToken;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import java.time.Instant;
+import java.util.Optional;
 import com.br.maisAcademiaPrati.aluno.AlunoEntity;
 import com.br.maisAcademiaPrati.aluno.AlunoRepository;
 import com.br.maisAcademiaPrati.funcionario.FuncionarioEntity;
@@ -17,45 +22,41 @@ import java.util.UUID;
 
 @Service
 public class RefreshTokenService {
-    // Define a validade do refresh token: 7 dias (em segundos).
-    private final long REFRESH_TOKEN_EXPIRATION = 7 * 24 * 60 * 60;
+  
+    // Duração do refresh token em milissegundos (defina essa propriedade no application.properties)
+    @Value("${app.jwtRefreshExpirationMs}")
+    private Long refreshTokenDurationMs;
 
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
 
-    @Autowired
-    private AlunoRepository alunoRepository;
+    /**
+     * Busca um refresh token pelo seu valor.
+     */
+    public Optional<RefreshToken> findByToken(String token) {
+        return refreshTokenRepository.findByToken(token);
+    }
 
-    @Autowired
-    private FuncionarioRepository funcionarioRepository;
-
-    public RefreshToken createRefreshToken(String email) {
-        AlunoEntity aluno = alunoRepository.findByEmail(email).orElse(null);
-
-        FuncionarioEntity funcionario = funcionarioRepository.findByEmail(email).orElse(null);
-
-        if(aluno == null && funcionario == null) {
-            throw new IllegalArgumentException("Usuário não encontrado");
-        }
-
-        // Remove qualquer refresh token antigo associado ao usuário antes de gerar um novo.
-        if(aluno != null){
-            refreshTokenRepository.deleteByAluno(aluno);
-
-            RefreshToken refreshToken = new RefreshToken(
-                    UUID.randomUUID(),
-                    Instant.now().plusSeconds(REFRESH_TOKEN_EXPIRATION),
-                    aluno
-            );
-            return refreshTokenRepository.save(refreshToken);
-        }
-
-        refreshTokenRepository.deleteByFuncionario(funcionario);
-        RefreshToken refreshToken = new RefreshToken(
-                UUID.randomUUID(),
-                Instant.now().plusSeconds(REFRESH_TOKEN_EXPIRATION),
-                funcionario
-        );
+    /**
+     * Cria um novo refresh token para o usuário informado.
+     */
+    public RefreshToken createRefreshToken(String username) {
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setUsername(username);
+        refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
+        refreshToken.setToken(UUID.randomUUID().toString());
         return refreshTokenRepository.save(refreshToken);
+    }
+
+    /**
+     * Verifica se o refresh token expirou.
+     * Se estiver expirado, deleta o token e lança uma exceção.
+     */
+    public RefreshToken verifyExpiration(RefreshToken token) {
+        if (token.getExpiryDate().compareTo(Instant.now()) < 0) {
+            refreshTokenRepository.delete(token);
+            throw new RuntimeException("Refresh token expirado. Por favor, realize o login novamente.");
+        }
+        return token;
     }
 }
