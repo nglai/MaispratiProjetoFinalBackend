@@ -1,82 +1,82 @@
 package com.br.maisAcademiaPrati.security;
 
-import com.br.maisAcademiaPrati.aluno.AlunoRepository;
-import com.br.maisAcademiaPrati.funcionario.FuncionarioRepository;
 import com.br.maisAcademiaPrati.pessoa.PessoaEntity;
+import com.br.maisAcademiaPrati.refreshToken.RefreshToken;
+import com.br.maisAcademiaPrati.refreshToken.RefreshTokenService;
+import com.br.maisAcademiaPrati.refreshToken.TokenRefreshRequest;
+import com.br.maisAcademiaPrati.refreshToken.TokenRefreshResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired
-    private JwtUtil jwtUtil;
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    private AlunoRepository alunoRepository;
-    @Autowired
-    private FuncionarioRepository funcionarioRepository;
-    @Autowired
-    private UserDetailsService userDetailsService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
+    private final RefreshTokenService refreshTokenService;
 
+    @Autowired
+    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, RefreshTokenService refreshTokenService) {
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
+        this.refreshTokenService = refreshTokenService;
+    }
+
+    /**
+     * Endpoint de login: autentica o usuário e retorna os tokens.
+     */
     @PostMapping("/login")
-    public String login(@RequestBody PessoaEntity pessoa) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody PessoaEntity pessoa) {
         try {
             System.out.println("Tentando autenticar: " + pessoa.getEmail());
             System.out.println("Senha fornecida: " + pessoa.getSenha());
 
-            // Realiza a autenticação utilizando o gerenciador de autenticação do Spring Security.
+            // Autentica o usuário
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(pessoa.getEmail(), pessoa.getSenha())
             );
 
-            return jwtUtil.generateToken(authentication.getName());
-            // Exibe no console que o usuário foi autenticado com sucesso.
-//            System.out.println("Usuário autenticado com sucesso: " + authentication.getName());
+            // Gera o access token e cria um novo refresh token
+            String accessToken = jwtUtil.generateToken(authentication.getName());
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(authentication.getName());
 
-            // Gera um token JWT para o usuário autenticado.
-//            String accessToken = jwtUtil.generateToken(authentication.getName());
-//            RefreshToken refreshToken = refreshTokenService.createRefreshToken(authentication.getName());
-//
-//            Map<String, String> tokens = new HashMap<>();
-//            tokens.put("accessToken", accessToken);
-//            tokens.put("refreshToken", refreshToken.getToken());
+            // Prepara o retorno com os dois tokens
+            Map<String, String> tokens = new HashMap<>();
+            tokens.put("accessToken", accessToken);
+            tokens.put("refreshToken", refreshToken.getToken());
 
-            // Retorna o token no corpo da resposta.
-//            return ResponseEntity.ok(tokens);
-
+            return ResponseEntity.ok(tokens);
         } catch (AuthenticationException e) {
-            throw new AuthenticationException("Usuário ou senha Inválidos") {};
+            throw new RuntimeException("Usuário ou senha inválidos", e);
         }
     }
 
+    /**
+     * Endpoint para refresh do access token.
+     * Recebe o refresh token e, se válido, retorna um novo access token.
+     */
     @PostMapping("/refresh-token")
-    public ResponseEntity<String> refreshToken(@RequestBody RefreshTokenDTO refreshToken) {
-        try {
-            String userEmail = jwtUtil.getEmailFromToken(refreshToken.getRefreshToken());
+    public ResponseEntity<TokenRefreshResponse> refreshToken(@RequestBody TokenRefreshRequest request) {
+        String requestRefreshToken = request.getRefreshToken();
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-
-            if(jwtUtil.isTokenValid(refreshToken.getRefreshToken(), userDetails)) {
-                String newAccessToken = jwtUtil.generateToken(userEmail);
-                return ResponseEntity.ok(newAccessToken);
-            } else {
-                return ResponseEntity.status(401).body("Refresh Token Inválido!");
-            }
-        } catch(Exception error){
-            return ResponseEntity.status(401).body("Erro ao processar o Refresh Token!");
-        }
+        return refreshTokenService.findByToken(requestRefreshToken)
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUsername)
+                .map(username -> {
+                    String newAccessToken = jwtUtil.generateToken(username);
+                    return ResponseEntity.ok(new TokenRefreshResponse(newAccessToken, requestRefreshToken));
+                })
+                .orElseThrow(() -> new RuntimeException("Refresh token não encontrado no banco de dados!"));
     }
 }
+
+
