@@ -1,8 +1,9 @@
 package com.br.maisAcademiaPrati.medida;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,6 +17,32 @@ public class MedidaController {
         this.medidaService = medidaService;
     }
 
+    // --- POST corrigido (recebe DTO) ---
+    @PostMapping
+    public ResponseEntity<?> salvar(@Valid @RequestBody MedidaDTO medidaDTO) {
+        try {
+            MedidaEntity medidaSalva = medidaService.salvar(medidaDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(medidaSalva);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    // --- PUT corrigido (recebe DTO) ---
+    @PutMapping("/{id}")
+    public ResponseEntity<?> atualizar(
+            @PathVariable UUID id,
+            @Valid @RequestBody MedidaDTO medidaDTO
+    ) {
+        try {
+            MedidaEntity medidaAtualizada = medidaService.atualizar(id, medidaDTO);
+            return ResponseEntity.ok(medidaAtualizada);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // --- Métodos existentes mantidos ---
     @GetMapping
     public List<MedidaEntity> listarTodas() {
         return medidaService.listarTodas();
@@ -26,22 +53,6 @@ public class MedidaController {
         return medidaService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PostMapping
-    public MedidaEntity salvar(@RequestBody MedidaEntity medida) {
-        return medidaService.salvar(medida);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<MedidaEntity> atualizar(@PathVariable UUID id,
-                                                  @RequestBody MedidaEntity medidaAtualizada) {
-        try {
-            MedidaEntity atualizado = medidaService.atualizar(id, medidaAtualizada);
-            return ResponseEntity.ok(atualizado);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
     }
 
     @DeleteMapping("/{id}")

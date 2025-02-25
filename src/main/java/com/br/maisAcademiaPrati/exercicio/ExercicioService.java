@@ -1,8 +1,10 @@
 package com.br.maisAcademiaPrati.exercicio;
 
+import com.br.maisAcademiaPrati.enums.Dificuldade;
+import com.br.maisAcademiaPrati.enums.GrupoMuscular;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -16,49 +18,36 @@ public class ExercicioService {
         this.exercicioRepository = exercicioRepository;
     }
 
-    /**
-     * Lista todos os exercícios cadastrados.
-     */
+    // --- Cria um novo exercício via DTO ---
+    @Transactional
+    public ExercicioEntity criarExercicio(ExercicioDTO exercicioDTO) {
+        ExercicioEntity exercicio = new ExercicioEntity();
+        BeanUtils.copyProperties(exercicioDTO, exercicio);
+        return exercicioRepository.save(exercicio);
+    }
+
+    // --- Lista todos os exercícios ---
     public List<ExercicioEntity> listarTodos() {
         return exercicioRepository.findAll();
     }
 
-    /**
-     * Busca um exercício pelo ID (UUID).
-     */
+    // --- Busca por ID ---
     public Optional<ExercicioEntity> buscarPorId(UUID id) {
         return exercicioRepository.findById(id);
     }
 
-    /**
-     * Cria/salva um novo exercício no banco de dados.
-     */
+    // --- Atualiza via DTO ---
     @Transactional
-    public ExercicioEntity salvar(ExercicioEntity exercicio) {
-        return exercicioRepository.save(exercicio);
+    public ExercicioEntity atualizarExercicio(UUID id, ExercicioDTO exercicioDTO) {
+        return exercicioRepository.findById(id)
+                .map(exercicioExistente -> {
+                    BeanUtils.copyProperties(exercicioDTO, exercicioExistente, "id_exercicio");
+                    return exercicioRepository.save(exercicioExistente);
+                })
+                .orElseThrow(() -> new RuntimeException("Exercício não encontrado"));
     }
 
-    /**
-     * Atualiza um exercício existente, caso ele seja encontrado.
-     */
-    @Transactional
-    public ExercicioEntity atualizar(UUID id, ExercicioEntity exercicioAtualizado) {
-        Optional<ExercicioEntity> optExercicio = exercicioRepository.findById(id);
-        if (optExercicio.isPresent()) {
-            ExercicioEntity exercicio = optExercicio.get();
-            // Atualiza apenas os campos necessários
-            exercicio.setNome(exercicioAtualizado.getNome());
-            exercicio.setGrupo_muscular(exercicioAtualizado.getGrupo_muscular());
-            exercicio.setDificuldade(exercicioAtualizado.getDificuldade());
-            exercicio.setLink_video(exercicioAtualizado.getLink_video());
-            return exercicioRepository.save(exercicio);
-        }
-        throw new RuntimeException("Exercício não encontrado para o ID: " + id);
-    }
-
-    /**
-     * Deleta um exercício pelo ID (UUID).
-     */
+    // --- Deleta ---
     @Transactional
     public void deletar(UUID id) {
         exercicioRepository.deleteById(id);

@@ -1,10 +1,11 @@
 package com.br.maisAcademiaPrati.alunoExercicio;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/aluno-exercicios")
@@ -16,42 +17,40 @@ public class AlunoExercicioController {
         this.alunoExercicioService = alunoExercicioService;
     }
 
-    /**
-     * Lista todos os registros de AlunoExercicio.
-     */
+    // --- POST corrigido (usa DTO) ---
+    @PostMapping
+    public ResponseEntity<?> salvar(@Valid @RequestBody AlunoExercicioDTO alunoExercicioDTO) {
+        try {
+            AlunoExercicio salvo = alunoExercicioService.salvar(alunoExercicioDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    // --- Outros endpoints ---
     @GetMapping
     public List<AlunoExercicio> listarTodos() {
         return alunoExercicioService.listarTodos();
     }
 
-    /**
-     * Busca um registro de AlunoExercicio pela PK composta (id_aluno, id_exercicio).
-     * Exemplo de endpoint: GET /api/aluno-exercicios/{idAluno}/{idExercicio}
-     */
     @GetMapping("/{idAluno}/{idExercicio}")
-    public ResponseEntity<AlunoExercicio> buscarPorId(@PathVariable UUID idAluno,
-                                                      @PathVariable UUID idExercicio) {
+    public ResponseEntity<AlunoExercicio> buscarPorId(
+            @PathVariable UUID idAluno,
+            @PathVariable UUID idExercicio
+    ) {
         AlunoExercicioId compositeId = new AlunoExercicioId(idAluno, idExercicio);
         return alunoExercicioService.buscarPorId(compositeId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Cria um novo registro de AlunoExercicio.
-     */
-    @PostMapping
-    public AlunoExercicio salvar(@RequestBody AlunoExercicio alunoExercicio) {
-        return alunoExercicioService.salvar(alunoExercicio);
-    }
-
-    /**
-     * Atualiza um registro de AlunoExercicio existente pela PK composta.
-     */
     @PutMapping("/{idAluno}/{idExercicio}")
-    public ResponseEntity<AlunoExercicio> atualizar(@PathVariable UUID idAluno,
-                                                    @PathVariable UUID idExercicio,
-                                                    @RequestBody AlunoExercicio alunoExercicioAtualizado) {
+    public ResponseEntity<AlunoExercicio> atualizar(
+            @PathVariable UUID idAluno,
+            @PathVariable UUID idExercicio,
+            @RequestBody AlunoExercicio alunoExercicioAtualizado
+    ) {
         try {
             AlunoExercicioId compositeId = new AlunoExercicioId(idAluno, idExercicio);
             AlunoExercicio atualizado = alunoExercicioService.atualizar(compositeId, alunoExercicioAtualizado);
@@ -61,12 +60,11 @@ public class AlunoExercicioController {
         }
     }
 
-    /**
-     * Deleta um registro de AlunoExercicio pela PK composta.
-     */
     @DeleteMapping("/{idAluno}/{idExercicio}")
-    public ResponseEntity<Void> deletar(@PathVariable UUID idAluno,
-                                        @PathVariable UUID idExercicio) {
+    public ResponseEntity<Void> deletar(
+            @PathVariable UUID idAluno,
+            @PathVariable UUID idExercicio
+    ) {
         AlunoExercicioId compositeId = new AlunoExercicioId(idAluno, idExercicio);
         alunoExercicioService.deletar(compositeId);
         return ResponseEntity.noContent().build();

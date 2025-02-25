@@ -1,8 +1,13 @@
 package com.br.maisAcademiaPrati.alunoExercicio;
 
+import com.br.maisAcademiaPrati.aluno.AlunoEntity;
+import com.br.maisAcademiaPrati.aluno.AlunoRepository;
+import com.br.maisAcademiaPrati.exercicio.ExercicioEntity;
+import com.br.maisAcademiaPrati.exercicio.ExercicioRepository;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -10,58 +15,68 @@ import java.util.Optional;
 public class AlunoExercicioService {
 
     private final AlunoExercicioRepository alunoExercicioRepository;
+    private final AlunoRepository alunoRepository;
+    private final ExercicioRepository exercicioRepository;
 
-    public AlunoExercicioService(AlunoExercicioRepository alunoExercicioRepository) {
+    @Autowired
+    public AlunoExercicioService(
+            AlunoExercicioRepository alunoExercicioRepository,
+            AlunoRepository alunoRepository,
+            ExercicioRepository exercicioRepository
+    ) {
         this.alunoExercicioRepository = alunoExercicioRepository;
+        this.alunoRepository = alunoRepository;
+        this.exercicioRepository = exercicioRepository;
     }
 
-    /**
-     * Lista todos os registros de AlunoExercicio.
-     */
+    // --- Método salvar corrigido ---
+    @Transactional
+    public AlunoExercicio salvar(AlunoExercicioDTO alunoExercicioDTO) {
+        // Validação do Aluno
+        AlunoEntity aluno = alunoRepository.findById(alunoExercicioDTO.idAluno())
+                .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
+
+        // Validação do Exercício
+        ExercicioEntity exercicio = exercicioRepository.findById(alunoExercicioDTO.idExercicio())
+                .orElseThrow(() -> new RuntimeException("Exercício não encontrado"));
+
+        // Criação da entidade
+        AlunoExercicio alunoExercicio = new AlunoExercicio();
+        BeanUtils.copyProperties(alunoExercicioDTO, alunoExercicio, "idAluno", "idExercicio");
+
+        // Configuração da PK composta
+        AlunoExercicioId compositeId = new AlunoExercicioId(
+                alunoExercicioDTO.idAluno(),
+                alunoExercicioDTO.idExercicio()
+        );
+        alunoExercicio.setId_aluno_exercicio(compositeId);
+        alunoExercicio.setAluno(aluno);
+        alunoExercicio.setExercicio(exercicio);
+
+        return alunoExercicioRepository.save(alunoExercicio);
+    }
+
+    // --- Outros métodos ---
     public List<AlunoExercicio> listarTodos() {
         return alunoExercicioRepository.findAll();
     }
 
-    /**
-     * Busca um registro de AlunoExercicio pelo ID composto (AlunoExercicioId).
-     */
     public Optional<AlunoExercicio> buscarPorId(AlunoExercicioId id) {
         return alunoExercicioRepository.findById(id);
     }
 
-    /**
-     * Salva um novo registro de AlunoExercicio no banco.
-     */
-    @Transactional
-    public AlunoExercicio salvar(AlunoExercicio alunoExercicio) {
-        return alunoExercicioRepository.save(alunoExercicio);
-    }
-
-    /**
-     * Atualiza um registro existente de AlunoExercicio.
-     * Caso não exista, lança exceção.
-     */
     @Transactional
     public AlunoExercicio atualizar(AlunoExercicioId id, AlunoExercicio alunoExercicioAtualizado) {
-        Optional<AlunoExercicio> optAE = alunoExercicioRepository.findById(id);
-        if (optAE.isPresent()) {
-            AlunoExercicio ae = optAE.get();
-            // Campos que podem ser atualizados (exceto o ID, que é fixo)
-            ae.setRepeticoes(alunoExercicioAtualizado.getRepeticoes());
-            ae.setSeries(alunoExercicioAtualizado.getSeries());
-            ae.setTipo_exercicio(alunoExercicioAtualizado.getTipo_exercicio());
-            // Se você quiser permitir trocar de aluno ou exercício, tome cuidado,
-            // pois isso muda a PK. Normalmente não se troca PK, mas se precisar:
-            // ae.setAluno(alunoExercicioAtualizado.getAluno());
-            // ae.setExercicio(alunoExercicioAtualizado.getExercicio());
-            return alunoExercicioRepository.save(ae);
-        }
-        throw new RuntimeException("AlunoExercicio não encontrado para o ID composto: " + id);
+        return alunoExercicioRepository.findById(id)
+                .map(ae -> {
+                    ae.setRepeticoes(alunoExercicioAtualizado.getRepeticoes());
+                    ae.setSeries(alunoExercicioAtualizado.getSeries());
+                    ae.setTipo_exercicio(alunoExercicioAtualizado.getTipo_exercicio());
+                    return alunoExercicioRepository.save(ae);
+                })
+                .orElseThrow(() -> new RuntimeException("Registro não encontrado"));
     }
 
-    /**
-     * Deleta um registro de AlunoExercicio pelo ID composto.
-     */
     @Transactional
     public void deletar(AlunoExercicioId id) {
         alunoExercicioRepository.deleteById(id);

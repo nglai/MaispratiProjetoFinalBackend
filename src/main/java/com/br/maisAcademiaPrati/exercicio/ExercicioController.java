@@ -1,8 +1,9 @@
 package com.br.maisAcademiaPrati.exercicio;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,17 +17,24 @@ public class ExercicioController {
         this.exercicioService = exercicioService;
     }
 
-    /**
-     * Lista todos os exercícios.
-     */
+    // --- Criação (POST) com DTO ---
+    @PostMapping
+    public ResponseEntity<?> criarExercicio(@Valid @RequestBody ExercicioDTO exercicioDTO) {
+        try {
+            ExercicioEntity exercicioSalvo = exercicioService.criarExercicio(exercicioDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(exercicioSalvo);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    // --- Listagem (GET) ---
     @GetMapping
     public List<ExercicioEntity> listarTodos() {
         return exercicioService.listarTodos();
     }
 
-    /**
-     * Busca um exercício pelo ID (UUID).
-     */
+    // --- Busca por ID (GET) ---
     @GetMapping("/{id}")
     public ResponseEntity<ExercicioEntity> buscarPorId(@PathVariable UUID id) {
         return exercicioService.buscarPorId(id)
@@ -34,31 +42,21 @@ public class ExercicioController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Cria um novo exercício.
-     */
-    @PostMapping
-    public ExercicioEntity salvar(@RequestBody ExercicioEntity exercicio) {
-        return exercicioService.salvar(exercicio);
-    }
-
-    /**
-     * Atualiza um exercício existente.
-     */
+    // --- Atualização (PUT) com DTO ---
     @PutMapping("/{id}")
-    public ResponseEntity<ExercicioEntity> atualizar(@PathVariable UUID id,
-                                                     @RequestBody ExercicioEntity exercicioAtualizado) {
+    public ResponseEntity<?> atualizar(
+            @PathVariable UUID id,
+            @Valid @RequestBody ExercicioDTO exercicioDTO
+    ) {
         try {
-            ExercicioEntity atualizado = exercicioService.atualizar(id, exercicioAtualizado);
+            ExercicioEntity atualizado = exercicioService.atualizarExercicio(id, exercicioDTO);
             return ResponseEntity.ok(atualizado);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
-    /**
-     * Deleta um exercício pelo ID.
-     */
+    // --- Exclusão (DELETE) ---
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable UUID id) {
         exercicioService.deletar(id);

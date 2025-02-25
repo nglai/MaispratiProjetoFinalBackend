@@ -19,4 +19,7 @@ public class AlunoExercicioId {
     private UUID id_aluno;
 
     private UUID id_exercicio;
+
+    public AlunoExercicioId(UUID idAluno, UUID idExercicio) {
+    }
 }
