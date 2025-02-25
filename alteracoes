@@ -1,0 +1,134 @@
+# Resumo das Alterações
+
+- **Implementação do Refresh Token:**
+  - Criado o modelo **RefreshToken** para armazenar o token, username e data de expiração.
+  - Criados os DTOs **TokenRefreshRequest** e **TokenRefreshResponse** para gerenciar as requisições e respostas do refresh token.
+  - Adicionado o repositório **RefreshTokenRepository** para persistência.
+  - Implementado o serviço **RefreshTokenService** que gera, valida e gerencia a expiração dos refresh tokens.
+  - Atualizado o **AuthController**:
+    - O endpoint `/auth/login` agora retorna tanto o **accessToken** quanto o **refreshToken**.
+    - Adicionado o endpoint `/auth/refresh-token` para renovar o **accessToken** usando o refresh token.
+
+- **Melhorias na Injeção de Dependências:**
+  - Alterado para injeção via construtor, garantindo melhor testabilidade e clareza das dependências.
+
+- **Testes Automatizados e Manuais:**
+  - Criados testes de integração utilizando **JUnit** e **MockMvc** para validar os endpoints de login e refresh.
+  - Fornecido exemplo de JSON para testes manuais com o **Postman**.
+
+# Detalhamento das Alterações
+
+## 1. Arquivos de Refresh Token Criados
+
+- **Modelo (RefreshToken):**  
+  Representa o refresh token com os campos `id`, `token`, `username` e `expiryDate`.
+
+- **DTOs:**
+  - **TokenRefreshRequest:** para receber o refresh token na requisição.
+  - **TokenRefreshResponse:** para retornar o novo `accessToken` (e opcionalmente o `refreshToken`).
+
+- **Repositório (RefreshTokenRepository):**  
+  Interface que estende `JpaRepository` para operações de persistência do refresh token.
+
+- **Serviço (RefreshTokenService):**  
+  Responsável por criar, buscar e verificar a expiração do refresh token. Caso o token esteja expirado, ele o remove e lança uma exceção.
+
+- **Controller (AuthController):**  
+  Atualizado para:
+  - No login, gerar e retornar os dois tokens.
+  - No refresh, validar o refresh token e gerar um novo `accessToken`.
+
+## 2. Testes Automatizados (JUnit e MockMvc)
+
+Foi criada uma classe de teste de integração (**AuthControllerIntegrationTest**) com dois testes:
+
+- **TestLogin:**  
+  Realiza uma requisição **POST** para `/auth/login` com credenciais de exemplo e verifica se os campos `accessToken` e `refreshToken` estão presentes na resposta.
+
+- **TestRefreshToken:**  
+  Efetua o login para obter o `refreshToken` e, em seguida, usa esse token para requisitar um novo `accessToken` através do endpoint `/auth/refresh-token`.
+
+*Comentários foram adicionados nos testes para explicar o fluxo e as expectativas.*
+
+## 3. Testes Manuais com Postman
+
+### Exemplo de JSON para Testar o Login
+
+```json
+{
+  "email": "test@example.com",
+  "senha": "password"
+}
+
+### Exemplo de coleção do Postman
+
+{
+  "info": {
+    "name": "Auth API",
+    "_postman_id": "xxxx-xxxx-xxxx-xxxx",
+    "description": "Coleção para testar os endpoints de autenticação e refresh token",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"test@example.com\",\n  \"senha\": \"password\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Refresh Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refreshToken\": \"YOUR_REFRESH_TOKEN_HERE\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/auth/refresh-token",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "auth",
+            "refresh-token"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
+
+
