@@ -20,6 +20,9 @@ public class AlunoController {
     @PostMapping
     public ResponseEntity<?> criaAluno (@RequestBody AlunoDTO data) {
         try {
+            if (alunoService.buscaAlunoPorEmail(data.email()) != null) {
+               throw new IllegalArgumentException("Erro: Email já cadastrado.");
+            }
             return ResponseEntity.status(HttpStatus.CREATED).body(this.alunoService.criarAluno(data));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

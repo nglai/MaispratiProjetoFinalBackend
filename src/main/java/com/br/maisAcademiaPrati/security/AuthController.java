@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -44,6 +47,8 @@ public class AuthController {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(pessoa.getEmail(), pessoa.getSenha())
             );
+          
+            System.out.println("Usuário autenticado com sucesso: " + authentication.getName());
 
             // Gera o access token e cria um novo refresh token
             String accessToken = jwtUtil.generateToken(authentication.getName());
@@ -55,6 +60,7 @@ public class AuthController {
             tokens.put("refreshToken", refreshToken.getToken());
 
             return ResponseEntity.ok(tokens);
+          
         } catch (AuthenticationException e) {
             throw new RuntimeException("Usuário ou senha inválidos", e);
         }
