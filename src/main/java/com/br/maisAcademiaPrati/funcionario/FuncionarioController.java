@@ -19,6 +19,9 @@ public class FuncionarioController {
     @PostMapping
     public ResponseEntity<?> criaFuncionario(@RequestBody FuncionarioDTO data) {
         try {
+            if(funcionarioService.buscaFuncionarioPorEmail(data.email()) != null){
+                throw new IllegalArgumentException("Erro: Email já cadastrado.");
+            }
             return ResponseEntity.status(HttpStatus.CREATED).body(this.funcionarioService.criarFuncionario(data));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

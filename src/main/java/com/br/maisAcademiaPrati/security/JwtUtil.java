@@ -1,5 +1,6 @@
 package com.br.maisAcademiaPrati.security;
 
+import com.br.maisAcademiaPrati.util.RsaKeyProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -20,12 +21,15 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private long expirationTime;
 
+    @Autowired
+    private RsaKeyProvider rsaKeyProvider;
+
     public String generateToken(String email) {
         var token = Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .signWith(rsaKeyProvider.getPrivateKey(), SignatureAlgorithm.RS256)
                 .compact();
         System.out.println(token);
         return token;
@@ -70,8 +74,7 @@ public class JwtUtil {
     // Extrai todas as claims de um token.
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
-//                .setSigningKey(rsaKeyProvider.getPublicKey()) // Configura o segredo usado para validar o token.
-                .setSigningKey(secret)
+                .setSigningKey(rsaKeyProvider.getPublicKey()) // Configura a chave pública usada para validar o token.
                 .parseClaimsJws(token) // Analisa o token e retorna suas informações.
                 .getBody(); // Obtém o corpo do token (as claims).
     }
