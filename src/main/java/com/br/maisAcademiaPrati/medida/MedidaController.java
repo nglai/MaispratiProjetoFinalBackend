@@ -1,7 +1,5 @@
 package com.br.maisAcademiaPrati.medida;
 
-import com.br.maisAcademiaPrati.aluno.AlunoDTO;
-import com.br.maisAcademiaPrati.aluno.AlunoEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +47,7 @@ public class MedidaController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletar(@PathVariable UUID id) {
+    public ResponseEntity<String> deletarMedidaPorId (@PathVariable UUID id) {
         medidaService.deletarMedidaPorId(id);
         return ResponseEntity.status(HttpStatus.OK).body("Medida deletada com sucesso!");
     }
