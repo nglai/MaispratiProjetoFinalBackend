@@ -48,7 +48,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll() // Permite acesso às rotas iniciadas por "/auth/" sem autenticação.
                         .requestMatchers("/aluno/**").permitAll()
-                        .requestMatchers("/funcionario/**").hasAuthority("ROLE_FUNCIONARIO") // Restringe acesso às rotas "/api/funcionario" para usuários com a role "ROLE_FUNCIONARIO".
+                        .requestMatchers("/funcionario/**").permitAll()
+                        .requestMatchers("/medida/**").permitAll()
+                        .requestMatchers("/exercicio/**").permitAll()
+//                        .requestMatchers("/funcionario/**").hasAuthority("ROLE_FUNCIONARIO") // Restringe acesso às rotas "/api/funcionario" para usuários com a role "ROLE_FUNCIONARIO".
                         .anyRequest().authenticated() // Exige autenticação para todas as outras requisições.
                 )
                 // Adiciona um filtro de limitação de taxa de login antes do filtro de autenticação JWT.
