@@ -1,6 +1,7 @@
 package com.br.maisAcademiaPrati.medida;
 
 import com.br.maisAcademiaPrati.aluno.AlunoEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,6 +22,7 @@ public class MedidaEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id_medida;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_id_aluno", nullable = false)
     private AlunoEntity aluno;
@@ -28,6 +30,7 @@ public class MedidaEntity {
     private Date data_medida;
     private Double peso;
     private Double biceps;
+    private Double triceps;
     private Double abdomen;
     private Double gluteo;
     private Double coxa;
