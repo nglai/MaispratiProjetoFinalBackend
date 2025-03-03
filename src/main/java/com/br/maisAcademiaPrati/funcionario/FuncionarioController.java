@@ -19,10 +19,10 @@ public class FuncionarioController {
     @PostMapping
     public ResponseEntity<?> criaFuncionario(@RequestBody FuncionarioDTO data) {
         try {
-            if(funcionarioService.buscaFuncionarioPorEmail(data.email()) != null){
+            if (funcionarioService.buscaFuncionarioPorEmail(data.email()) != null) {
                 throw new IllegalArgumentException("Erro: Email já cadastrado.");
             }
-            return ResponseEntity.status(HttpStatus.CREATED).body(this.funcionarioService.criarFuncionario(data));
+            return ResponseEntity.status(HttpStatus.CREATED).body(funcionarioService.criarFuncionario(data));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -30,7 +30,7 @@ public class FuncionarioController {
 
     @GetMapping
     public ResponseEntity<List<FuncionarioEntity>> listaTodosFuncionarios() {
-        return ResponseEntity.status(HttpStatus.OK).body(this.funcionarioService.listaTodosFuncionarios());
+        return ResponseEntity.status(HttpStatus.OK).body(funcionarioService.listaTodosFuncionarios());
     }
 
     @GetMapping("/{id}")
@@ -40,7 +40,11 @@ public class FuncionarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<FuncionarioEntity> atualizaFuncionarioPorId(@PathVariable("id") UUID id, @RequestBody FuncionarioDTO funcionarioDTO) {
-        return ResponseEntity.status(HttpStatus.OK).body(this.funcionarioService.atualizaFuncionarioPorId(id, funcionarioDTO));
+    public ResponseEntity<?> atualizaFuncionarioPorId(@PathVariable("id") UUID id, @RequestBody FuncionarioDTO funcionarioDTO) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(funcionarioService.atualizaFuncionarioPorId(id, funcionarioDTO));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 }

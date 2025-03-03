@@ -50,20 +50,45 @@ public class FuncionarioService {
 
     public FuncionarioEntity atualizaFuncionarioPorId(UUID id, FuncionarioDTO funcionarioDTO) {
         Optional<FuncionarioEntity> funcionarioEntity = funcionarioRepository.findById(id);
-        if(funcionarioEntity.isPresent()){
-            FuncionarioEntity funcionario = funcionarioEntity.get();
-            BeanUtils.copyProperties(funcionarioDTO, funcionario);
 
+        if (funcionarioEntity.isPresent()) {
+            FuncionarioEntity funcionario = funcionarioEntity.get();
+
+            // Verifica se uma nova senha foi enviada
+            if (funcionarioDTO.senha() != null && !funcionarioDTO.senha().isBlank()) {
+                String senhaCriptografada = passwordEncoder.encode(funcionarioDTO.senha());
+                funcionario.setSenha(senhaCriptografada);
+            }
+
+            // Copia apenas os campos relevantes, sem sobrescrever a senha
+            if (funcionarioDTO.nome() != null) {
+                funcionario.setNome(funcionarioDTO.nome());
+            }
+            if (funcionarioDTO.email() != null) {
+                funcionario.setEmail(funcionarioDTO.email());
+            }
+            if (funcionarioDTO.documento() != null) {
+                funcionario.setDocumento(funcionarioDTO.documento());
+            }
+            if (funcionarioDTO.role() != null) {
+                funcionario.setRole(funcionarioDTO.role());
+            }
+
+            // Atualiza o endereço
             EnderecoEntity endereco = funcionario.getEndereco();
-            endereco.setRua(funcionarioDTO.endereco().rua());
-            endereco.setBairro(funcionarioDTO.endereco().bairro());
-            endereco.setCep(funcionarioDTO.endereco().cep());
-            endereco.setComplemento(funcionarioDTO.endereco().complemento());
-            enderecoRepository.save(endereco);
+            if (funcionarioDTO.endereco() != null) {
+                endereco.setRua(funcionarioDTO.endereco().rua());
+                endereco.setBairro(funcionarioDTO.endereco().bairro());
+                endereco.setCep(funcionarioDTO.endereco().cep());
+                endereco.setComplemento(funcionarioDTO.endereco().complemento());
+                enderecoRepository.save(endereco);
+            }
 
             return funcionarioRepository.save(funcionario);
         } else {
             throw new RuntimeException("Funcionário não encontrado.");
         }
     }
+
+
 }
