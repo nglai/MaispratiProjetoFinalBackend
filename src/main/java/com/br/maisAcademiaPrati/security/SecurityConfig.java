@@ -47,8 +47,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // Desabilita a proteção contra CSRF (não recomendada para produção sem análise).
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()// Permite acesso às rotas iniciadas por "/auth/" sem autenticação.
-                        .requestMatchers("/aluno/**").hasAnyAuthority("ROLE_ALUNO", "ROLE_PROFESSOR")
-                        .requestMatchers("/funcionario/**").hasAuthority("ROLE_FUNCIONARIO")
+                        .requestMatchers("/aluno/**").hasAnyAuthority("ROLE_ALUNO", "ROLE_PROFESSOR", "ROLE_RECEPCIONISTA")
+                        .requestMatchers("/funcionario/**").hasAuthority("ROLE_ADMINISTRADOR")
                         .requestMatchers("/medida/**").hasAuthority("ROLE_ALUNO")
                         .requestMatchers("/exercicio/**").hasAnyAuthority("ROLE_ALUNO", "ROLE_PROFESSOR")//professor
                         .requestMatchers("/funcionario/**").hasAuthority("ROLE_ADMINISTRADOR") // Restringe acesso às rotas "/api/funcionario" para usuários com a role "ROLE_FUNCIONARIO".
