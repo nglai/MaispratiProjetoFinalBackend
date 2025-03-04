@@ -54,8 +54,16 @@ public class AlunoService {
         Optional<AlunoEntity> alunoEntity = alunoRepository.findById(id);
         if(alunoEntity.isPresent()){
             AlunoEntity aluno = alunoEntity.get();
-            BeanUtils.copyProperties(alunoDTO, aluno);
 
+            // Ignora a senha durante a cópia para não sobrescrever com texto simples
+            BeanUtils.copyProperties(alunoDTO, aluno, "senha");
+
+            // Codifica a nova senha se for fornecida
+            if (alunoDTO.senha() != null && !alunoDTO.senha().isEmpty()) {
+                aluno.setSenha(passwordEncoder.encode(alunoDTO.senha()));
+            }
+
+            // Atualiza o endereço
             EnderecoEntity endereco = aluno.getEndereco();
             endereco.setRua(alunoDTO.endereco().rua());
             endereco.setBairro(alunoDTO.endereco().bairro());
@@ -68,4 +76,5 @@ public class AlunoService {
             throw new RuntimeException("Aluno não encontrado.");
         }
     }
+
 }

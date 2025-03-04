@@ -1,5 +1,6 @@
 package com.br.maisAcademiaPrati.security;
 
+import com.br.maisAcademiaPrati.enums.Role;
 import com.br.maisAcademiaPrati.aluno.AlunoEntity;
 import com.br.maisAcademiaPrati.aluno.AlunoRepository;
 import com.br.maisAcademiaPrati.funcionario.FuncionarioEntity;
@@ -35,13 +36,31 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         Optional<FuncionarioEntity> funcionario = funcionarioRepository.findByEmail(username);
         if (funcionario.isPresent()) {
-            return new CustomUserDetails(
-                    funcionario.get().getEmail(),
-                    funcionario.get().getSenha(),
-                    List.of(new SimpleGrantedAuthority("ROLE_FUNCIONARIO"))
-                    ); // Lista de permissões/roles (neste caso, apenas "ROLE_FUNCIONARIO").
+            Role role = funcionario.get().getRole(); // Obtendo a role diretamente do enum
+
+            if (Role.recepcionista.equals(role)) {
+                return new CustomUserDetails(
+                        funcionario.get().getEmail(),
+                        funcionario.get().getSenha(),
+                        List.of(new SimpleGrantedAuthority("ROLE_RECEPCIONISTA"))
+                );
+            } else if (Role.administrador.equals(role)) {
+                return new CustomUserDetails(
+                        funcionario.get().getEmail(),
+                        funcionario.get().getSenha(),
+                        List.of(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"))
+                );
+            } else if (Role.professor.equals(role)) {
+                return new CustomUserDetails(
+                        funcionario.get().getEmail(),
+                        funcionario.get().getSenha(),
+                        List.of(new SimpleGrantedAuthority("ROLE_PROFESSOR"))
+                );
+            } else {
+                throw new UsernameNotFoundException("Role de funcionário inválida.");
+            }
         }
 
-        return null;
+        throw new UsernameNotFoundException("Usuário não encontrado.");
     }
 }

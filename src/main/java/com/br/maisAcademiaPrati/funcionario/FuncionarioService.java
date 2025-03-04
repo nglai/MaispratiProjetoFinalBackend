@@ -21,7 +21,7 @@ public class FuncionarioService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public FuncionarioEntity criarFuncionario (FuncionarioDTO funcionarioDTO) {
+    public FuncionarioEntity criarFuncionario(FuncionarioDTO funcionarioDTO) {
         var endereco = new EnderecoEntity();
         endereco.setRua(funcionarioDTO.endereco().rua());
         endereco.setBairro(funcionarioDTO.endereco().bairro());
@@ -40,16 +40,28 @@ public class FuncionarioService {
         return funcionarioRepository.findAll();
     }
 
+    public FuncionarioEntity buscaFuncionarioPorEmail(String email) {
+        return funcionarioRepository.findByEmail(email).orElse(null);
+    }
+
     public Optional<FuncionarioEntity> buscaFuncionarioPorId(UUID id) {
         return funcionarioRepository.findById(id);
     }
 
     public FuncionarioEntity atualizaFuncionarioPorId(UUID id, FuncionarioDTO funcionarioDTO) {
         Optional<FuncionarioEntity> funcionarioEntity = funcionarioRepository.findById(id);
-        if(funcionarioEntity.isPresent()){
+        if (funcionarioEntity.isPresent()) {
             FuncionarioEntity funcionario = funcionarioEntity.get();
-            BeanUtils.copyProperties(funcionarioDTO, funcionario);
 
+            // Ignora a senha durante a cópia para não sobrescrever com texto simples
+            BeanUtils.copyProperties(funcionarioDTO, funcionario, "senha");
+
+            // Codifica a nova senha se for fornecida
+            if (funcionarioDTO.senha() != null && !funcionarioDTO.senha().isEmpty()) {
+                funcionario.setSenha(passwordEncoder.encode(funcionarioDTO.senha()));
+            }
+
+            // Atualiza o endereço
             EnderecoEntity endereco = funcionario.getEndereco();
             endereco.setRua(funcionarioDTO.endereco().rua());
             endereco.setBairro(funcionarioDTO.endereco().bairro());

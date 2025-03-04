@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -49,11 +50,9 @@ public class AlunoEntity extends PessoaEntity {
     @JoinColumn(name = "fk_id_endereco")
     private EnderecoEntity endereco;
 
-    @Transient
     @OneToMany(mappedBy = "aluno")
     private List<MedidaEntity> medidas;
 
-    @Transient
     @OneToMany(mappedBy = "aluno")
     private List<AlunoExercicio> exercicios;
 }
