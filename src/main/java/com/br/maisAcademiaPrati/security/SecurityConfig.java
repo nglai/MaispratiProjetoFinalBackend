@@ -52,11 +52,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()// Permite acesso às rotas iniciadas por "/auth/" sem autenticação.
                         .requestMatchers("/administrador").permitAll()
-                        .requestMatchers("/aluno/**").hasAnyAuthority("ROLE_ALUNO", "ROLE_PROFESSOR", "ROLE_RECEPCIONISTA")
-                        .requestMatchers("/funcionario/**").hasAuthority("ROLE_ADMINISTRADOR")
+                        .requestMatchers("/aluno/**").hasAnyAuthority("ROLE_ALUNO", "ROLE_PROFESSOR", "ROLE_RECEPCIONISTA", "ROLE_ADMINISTRADOR")
+                        .requestMatchers("/funcionario/**").hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_RECEPCIONISTA")
                         .requestMatchers("/medida/**").hasAuthority("ROLE_ALUNO")
-                        .requestMatchers("/exercicio/**").hasAnyAuthority("ROLE_ALUNO", "ROLE_PROFESSOR")//professor
-                        .requestMatchers("/funcionario/**").hasAuthority("ROLE_ADMINISTRADOR") // Restringe acesso às rotas "/api/funcionario" para usuários com a role "ROLE_FUNCIONARIO".
+                        .requestMatchers("/exercicio/**").hasAnyAuthority("ROLE_ALUNO", "ROLE_PROFESSOR")
                         .anyRequest().authenticated() // Exige autenticação para todas as outras requisições.
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(
