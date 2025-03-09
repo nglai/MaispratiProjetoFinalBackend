@@ -17,6 +17,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
+
 @Configuration
 public class SecurityConfig {
 
@@ -54,7 +56,7 @@ public class SecurityConfig {
                         .requestMatchers("/administrador").permitAll()
                         .requestMatchers("/aluno/**").hasAnyAuthority("ROLE_ALUNO", "ROLE_PROFESSOR", "ROLE_RECEPCIONISTA", "ROLE_ADMINISTRADOR")
                         .requestMatchers("/funcionario/**").hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_RECEPCIONISTA")
-                        .requestMatchers("/medida/**").hasAuthority("ROLE_ALUNO")
+                        .requestMatchers("/medida/**").hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_RECEPCIONISTA", "ROLE_PROFESSOR")
                         .requestMatchers("/exercicio/**").hasAnyAuthority("ROLE_ALUNO", "ROLE_PROFESSOR")
                         .anyRequest().authenticated() // Exige autenticação para todas as outras requisições.
                 )
@@ -73,9 +75,11 @@ public class SecurityConfig {
         configuration.addAllowedMethod("*"); // Permite todos os métodos HTTP (GET, POST, PUT, DELETE, etc.)
         configuration.addAllowedHeader("*"); // Permite todos os cabeçalhos HTTP
         configuration.setAllowCredentials(true); // Permite o envio de credenciais (cookies, cabeçalhos de autorização, etc.) nas requisições
+        configuration.setExposedHeaders(Arrays.asList("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(); // Cria uma nova instância para mapear as configurações de CORS com base em URLs
         source.registerCorsConfiguration("/**", configuration); // Registra as configurações de CORS para todas as rotas da aplicação
         return source; // Retorna a fonte de configuração CORS
     }
+
 }
