@@ -13,6 +13,11 @@ import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 public class SecurityConfig {
@@ -45,19 +50,36 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable()) // Desabilita a proteção contra CSRF (não recomendada para produção sem análise).
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // Configura o CORS utilizando a fonte de configuração definida no método corsConfigurationSource()
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()// Permite acesso às rotas iniciadas por "/auth/" sem autenticação.
-                        .requestMatchers("/aluno/**").hasAnyAuthority("ROLE_ALUNO", "ROLE_PROFESSOR", "ROLE_RECEPCIONISTA")
-                        .requestMatchers("/funcionario/**").hasAuthority("ROLE_ADMINISTRADOR")
-                        .requestMatchers("/medida/**").hasAuthority("ROLE_ALUNO")
-                        .requestMatchers("/exercicio/**").hasAnyAuthority("ROLE_ALUNO", "ROLE_PROFESSOR")//professor
-                        .requestMatchers("/funcionario/**").hasAuthority("ROLE_ADMINISTRADOR") // Restringe acesso às rotas "/api/funcionario" para usuários com a role "ROLE_FUNCIONARIO".
+                        .requestMatchers("/administrador").permitAll()
+                        .requestMatchers("/aluno/**").hasAnyAuthority("ROLE_ALUNO", "ROLE_PROFESSOR", "ROLE_RECEPCIONISTA", "ROLE_ADMINISTRADOR")
+                        .requestMatchers("/funcionario/**").hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_RECEPCIONISTA")
+                        .requestMatchers("/medida/**").hasAnyAuthority("ROLE_ADMINISTRADOR", "ROLE_RECEPCIONISTA", "ROLE_PROFESSOR")
+                        .requestMatchers("/exercicio/**").hasAnyAuthority("ROLE_ALUNO", "ROLE_PROFESSOR")
                         .anyRequest().authenticated() // Exige autenticação para todas as outras requisições.
                 )
-                // Adiciona um filtro de limitação de taxa de login antes do filtro de autenticação JWT.
-//                .addFilterBefore(loginRateLimiter, JwtAuthenticationFilter.class)
-                // Adiciona o filtro JWT antes do filtro padrão de autenticação por email e senha
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .sessionManagement(session -> session.sessionCreationPolicy(
+                        org.springframework.security.config.http.SessionCreationPolicy.STATELESS
+                )) // Configura o gerenciamento de sessão para ser stateless, ou seja, sem armazenar estado de sessão no servidor
+//                .addFilterBefore(loginRateLimiter, JwtAuthenticationFilter.class) // Adiciona um filtro de limitação de taxa de login antes do filtro de autenticação JWT.
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // Adiciona o filtro JWT antes do filtro padrão de autenticação por email e senha
                 .build(); // Constrói e retorna a configuração de segurança.
     }
+
+    @Bean // Define que o método abaixo retornará um bean gerenciado pelo Spring
+    public CorsConfigurationSource corsConfigurationSource() { // Método que configura e retorna as definições de CORS
+        CorsConfiguration configuration = new CorsConfiguration(); // Cria uma nova instância de CorsConfiguration para definir as configurações de CORS
+        configuration.addAllowedOrigin("http://localhost:5173"); // Permite requisições de origem "http://localhost:5173"
+        configuration.addAllowedMethod("*"); // Permite todos os métodos HTTP (GET, POST, PUT, DELETE, etc.)
+        configuration.addAllowedHeader("*"); // Permite todos os cabeçalhos HTTP
+        configuration.setAllowCredentials(true); // Permite o envio de credenciais (cookies, cabeçalhos de autorização, etc.) nas requisições
+        configuration.setExposedHeaders(Arrays.asList("Authorization"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(); // Cria uma nova instância para mapear as configurações de CORS com base em URLs
+        source.registerCorsConfiguration("/**", configuration); // Registra as configurações de CORS para todas as rotas da aplicação
+        return source; // Retorna a fonte de configuração CORS
+    }
+
 }
