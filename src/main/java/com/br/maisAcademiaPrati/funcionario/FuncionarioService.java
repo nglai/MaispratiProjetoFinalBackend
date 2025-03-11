@@ -1,5 +1,6 @@
 package com.br.maisAcademiaPrati.funcionario;
 
+import com.br.maisAcademiaPrati.aluno.AlunoEntity;
 import com.br.maisAcademiaPrati.endereco.EnderecoEntity;
 import com.br.maisAcademiaPrati.endereco.EnderecoRepository;
 import org.springframework.beans.BeanUtils;
@@ -73,5 +74,13 @@ public class FuncionarioService {
         } else {
             throw new RuntimeException("Funcionário não encontrado.");
         }
+    }
+
+    public FuncionarioEntity atualizarStatus(UUID id, boolean ativo) {
+        FuncionarioEntity funcionario = funcionarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
+
+        funcionario.setAtivo(ativo);
+        return funcionarioRepository.save(funcionario); // Corrigido para minúsculo
     }
 }

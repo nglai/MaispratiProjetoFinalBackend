@@ -77,4 +77,11 @@ public class AlunoService {
         }
     }
 
+    public AlunoEntity atualizarStatus(UUID id, boolean ativo) {
+        AlunoEntity aluno = alunoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
+
+        aluno.setAtivo(ativo);
+        return alunoRepository.save(aluno);
+    }
 }

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,5 +44,21 @@ public class AlunoController {
     @PutMapping("/{id}")
     public ResponseEntity<AlunoEntity> atualizaAlunoPorId (@PathVariable("id") UUID id, @RequestBody AlunoDTO alunoDTO) {
         return ResponseEntity.status(HttpStatus.OK).body(this.alunoService.atualizaAlunoPorId(id, alunoDTO));
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<?> atualizarStatusAluno(@PathVariable("id") UUID id, @RequestBody Map<String, Boolean> status) {
+        try {
+            Boolean ativo = status.get("ativo");
+            if (ativo == null) {
+                return ResponseEntity.badRequest().body("Campo 'ativo' é obrigatório");
+            }
+
+            AlunoEntity aluno = alunoService.atualizarStatus(id, ativo);
+            return ResponseEntity.ok(aluno);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao atualizar status do aluno: " + e.getMessage());
+        }
     }
 }
