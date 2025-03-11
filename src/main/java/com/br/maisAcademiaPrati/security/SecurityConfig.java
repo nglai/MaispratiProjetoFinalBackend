@@ -70,16 +70,20 @@ public class SecurityConfig {
 
     @Bean // Define que o método abaixo retornará um bean gerenciado pelo Spring
     public CorsConfigurationSource corsConfigurationSource() { // Método que configura e retorna as definições de CORS
-        CorsConfiguration configuration = new CorsConfiguration(); // Cria uma nova instância de CorsConfiguration para definir as configurações de CORS
-        configuration.addAllowedOrigin("http://localhost:5173"); // Permite requisições de origem "http://localhost:5173"
-        configuration.addAllowedMethod("*"); // Permite todos os métodos HTTP (GET, POST, PUT, DELETE, etc.)
-        configuration.addAllowedHeader("*"); // Permite todos os cabeçalhos HTTP
-        configuration.setAllowCredentials(true); // Permite o envio de credenciais (cookies, cabeçalhos de autorização, etc.) nas requisições
-        configuration.setExposedHeaders(Arrays.asList("Authorization"));
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOrigin("http://localhost:5173");
+        configuration.addAllowedMethod("GET");
+        configuration.addAllowedMethod("POST");
+        configuration.addAllowedMethod("PUT");
+        configuration.addAllowedMethod("PATCH");
+        configuration.addAllowedMethod("DELETE");
+        configuration.addAllowedMethod("OPTIONS");
+        configuration.addAllowedHeader("*");
+        configuration.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(); // Cria uma nova instância para mapear as configurações de CORS com base em URLs
-        source.registerCorsConfiguration("/**", configuration); // Registra as configurações de CORS para todas as rotas da aplicação
-        return source; // Retorna a fonte de configuração CORS
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
 }

@@ -1,11 +1,13 @@
 package com.br.maisAcademiaPrati.funcionario;
 
+import com.br.maisAcademiaPrati.aluno.AlunoEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,6 +47,22 @@ public class FuncionarioController {
             return ResponseEntity.status(HttpStatus.OK).body(funcionarioService.atualizaFuncionarioPorId(id, funcionarioDTO));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<?> atualizarStatusFuncionario(@PathVariable("id") UUID id, @RequestBody Map<String, Boolean> status) {
+        try {
+            Boolean ativo = status.get("ativo");
+            if (ativo == null) {
+                return ResponseEntity.badRequest().body("Campo 'ativo' é obrigatório");
+            }
+
+            FuncionarioEntity funcionario = funcionarioService.atualizarStatus(id, ativo);
+            return ResponseEntity.ok(funcionario);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao atualizar status do aluno: " + e.getMessage());
         }
     }
 }
