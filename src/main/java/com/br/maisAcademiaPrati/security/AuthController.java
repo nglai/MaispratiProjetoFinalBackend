@@ -47,19 +47,25 @@ public class AuthController {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(pessoa.getEmail(), pessoa.getSenha())
             );
-          
-            System.out.println("Usuário autenticado com sucesso: " + authentication.getName());
+
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            String role = userDetails.getAuthorities().stream()
+                    .findFirst()
+                    .map(authority -> authority.getAuthority().replace("ROLE_", ""))
+                    .orElse("");
 
             // Gera o access token e cria um novo refresh token
             String accessToken = jwtUtil.generateToken(authentication.getName());
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(authentication.getName());
 
-            // Prepara o retorno com os dois tokens
-            Map<String, String> tokens = new HashMap<>();
-            tokens.put("accessToken", accessToken);
-            tokens.put("refreshToken", refreshToken.getToken());
+            // Prepara o retorno com os tokens e a role
+            Map<String, String> response = new HashMap<>();
+            response.put("accessToken", accessToken);
+            response.put("refreshToken", refreshToken.getToken());
+            response.put("role", role);
 
-            return ResponseEntity.ok(tokens);
+            System.out.println("Role do usuário: " + role);
+            return ResponseEntity.ok(response);
           
         } catch (AuthenticationException e) {
             throw new RuntimeException("Usuário ou senha inválidos", e);

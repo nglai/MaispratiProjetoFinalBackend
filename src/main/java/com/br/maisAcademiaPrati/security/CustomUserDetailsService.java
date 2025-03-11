@@ -31,34 +31,25 @@ public class CustomUserDetailsService implements UserDetailsService {
                     aluno.get().getEmail(),
                     aluno.get().getSenha(),
                     List.of(new SimpleGrantedAuthority("ROLE_ALUNO"))
-            ); // Lista de permissões/roles (neste caso, apenas "ROLE_ALUNO").
+            );
         }
 
         Optional<FuncionarioEntity> funcionario = funcionarioRepository.findByEmail(username);
         if (funcionario.isPresent()) {
-            Role role = funcionario.get().getRole(); // Obtendo a role diretamente do enum
+            Role role = funcionario.get().getRole();
 
-            if (Role.recepcionista.equals(role)) {
-                return new CustomUserDetails(
-                        funcionario.get().getEmail(),
-                        funcionario.get().getSenha(),
-                        List.of(new SimpleGrantedAuthority("ROLE_RECEPCIONISTA"))
-                );
-            } else if (Role.administrador.equals(role)) {
-                return new CustomUserDetails(
-                        funcionario.get().getEmail(),
-                        funcionario.get().getSenha(),
-                        List.of(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"))
-                );
-            } else if (Role.professor.equals(role)) {
-                return new CustomUserDetails(
-                        funcionario.get().getEmail(),
-                        funcionario.get().getSenha(),
-                        List.of(new SimpleGrantedAuthority("ROLE_PROFESSOR"))
-                );
-            } else {
-                throw new UsernameNotFoundException("Role de funcionário inválida.");
-            }
+            String roleString = switch (role) {
+                case recepcionista -> "ROLE_RECEPCIONISTA";
+                case administrador -> "ROLE_ADMINISTRADOR";
+                case professor -> "ROLE_PROFESSOR";
+                default -> throw new UsernameNotFoundException("Role de funcionário inválida.");
+            };
+
+            return new CustomUserDetails(
+                    funcionario.get().getEmail(),
+                    funcionario.get().getSenha(),
+                    List.of(new SimpleGrantedAuthority(roleString))
+            );
         }
 
         throw new UsernameNotFoundException("Usuário não encontrado.");
